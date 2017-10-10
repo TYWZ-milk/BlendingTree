@@ -167,6 +167,7 @@ function readFile(){
                     branchlength--;
                 }
             }
+            createTree();
         },
 
         // Function called when download progresses
@@ -260,7 +261,6 @@ function readFile(){
                     branchlength--;
                 }
             }
-            createTree();
         },
 
         // Function called when download progresses
@@ -319,17 +319,18 @@ function createTree(){
             }
         }
         else if(m>=struct2.length){
-            for (l,maxsequence=l+parseInt(struct1[m])-1; l <= maxsequence; l++) {
+            for (l=tree1[j].sequence,maxsequence=l+parseInt(struct1[m])-1; l <= maxsequence; l++) {
                 trunk1 = [];
                 trunk2 = [];
-                for (i; i < tree1.length; i++) {
-                    if (tree1[i].sequence == l) {
-                        trunk1.push(tree1[i]);
-                        trunk2.push('0');
-                        if (tree1[i + 1].sequence != l)
+                for (j; j < tree1.length; j++) {
+                    if (tree1[j].sequence == l) {
+                        trunk1.push(tree1[j]);
+                        if (j+1<tree1.length && tree1[j + 1].sequence != l)
                             break;
                     }
                 }
+                trunk2.push('0');
+                blending();
             }
         }
         else if(m<struct1.length && m<struct2.length && parseInt(struct1[m])!=parseInt(struct2[m])){
@@ -420,30 +421,20 @@ function blending(){
         }
     }
     if(trunk1.length >trunk2.length&& trunk2[0]!='0'){
-        for(var i=0;i<trunk1.length;i++) {
-            if(i>=trunk2.length){
-                var cicle={radius:(trunk1[i].radius),pos:trunk1[i].pos};
-            }
-            else {
-                var cicle = {
-                    radius: (trunk1[i].radius + trunk2[i].radius) / 2,
-                    pos: trunk1[i].pos.add(trunk2[i].pos).divideScalar(2)
-                };
-            }
+        for(var i=1;i<=trunk2.length;i++) {
+            var cicle = {
+                radius: (trunk1[i*parseInt(trunk1.length/trunk2.length)-1].radius + trunk2[i-1].radius) / 2,
+                pos: trunk1[i*parseInt(trunk1.length/trunk2.length)-1].pos.add(trunk2[i-1].pos).divideScalar(2)
+            };
             midTree.push(cicle);
         }
     }
     if(trunk1.length <trunk2.length && trunk1[0]!='0'){
-        for(var i=0;i<trunk2.length;i++) {
-            if(i>=trunk1.length){
-                var cicle={radius:(trunk2[i].radius),pos:trunk2[i].pos};
-            }
-            else {
-                var cicle = {
-                    radius: (trunk1[i].radius + trunk2[i].radius) / 2,
-                    pos: trunk1[i].pos.add(trunk2[i].pos).divideScalar(2)
-                };
-            }
+        for(var i=0;i<trunk1.length;i++) {
+            var cicle = {
+                radius: (trunk2[i*parseInt(trunk2.length/trunk1.length)-1].radius + trunk1[i-1].radius) / 2,
+                pos: trunk2[i*parseInt(trunk2.length/trunk1.length)-1].pos.add(trunk1[i-1].pos).divideScalar(2)
+            };
             midTree.push(cicle);
         }
     }
