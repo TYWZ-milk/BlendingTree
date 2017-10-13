@@ -1,13 +1,7 @@
 var canvas,width,height,renderer,scene,camera,tracontrols,Orbitcontrols,rotcontrols,scacontrols;
-var forest=[];
-var forests=[];
 var normalTree=[];
 var branch;
 //var lbbs;
-var forestsize=4;
-var tree1=[];
-var tree2=[];
-var midTree=[];
 function init() {
   //  lbbs = new LBBs();
     canvas = document.getElementById("canvas");
@@ -94,6 +88,9 @@ function initObject(){
 }
 var struct1=[];
 var struct2=[];
+var tree1=null;
+var tree2=[];
+var midTree=[];
 function readFile(){
     var loaderTree1 = new THREE.FileLoader();
     var loaderTree2 = new THREE.FileLoader();
@@ -109,7 +106,9 @@ function readFile(){
             var x="", y="",z="";
             var radius="";
             var temp=0;
-            var branchlength=0;
+            var branchlength="";
+            var trunk=[];
+            var child="";
             // output the text to the console
             for(var i=0;i<data.length;i++) {
                 temp = 0;
@@ -121,21 +120,34 @@ function readFile(){
                     var number=data[i+9].toString();
                     if(data[i+10]!='\r') {
                         number += data[i + 10].toString();
-                        if (data[i + 11] != '\r')
+                        if (data[i + 11] != '\r') {
                             number += data[i + 11].toString();
+                            i+=14;
+                        }
+                        else{
+                            i+=13;
+                        }
+                    }
+                    else{
+                        i+=12;
                     }
                     struct1.push(number);
-                    i+=19;
                 }
-                if(data[i+2]=='\r') {
-                    branchlength = data[i].toString() + data[i + 1].toString();
-                    i += 4;
+                if(data[i+5]=='\r'||data[i+4]=='\r'||data[i+3]=='\r') {
+                    branchlength='';
+                    child='';
+                    while (data[i] != ' ') {
+                        child += data[i].toString();
+                        i++;
+                    }
+                    while (data[i] != '\n')i++;
+                    i++;
+                    while (data[i] != '\r') {
+                        branchlength += data[i].toString();
+                        i++;
+                    }
                     sequence++;
-                }
-                if(data[i+1]=='\r'){
-                    branchlength = data[i].toString();
-                    i += 3;
-                    sequence++;
+                    i += 2;
                 }
                 for(var j=i;data[j]!='\r'&&j<data.length;j++) {
                     if(data[j]!=' ') {
@@ -163,8 +175,16 @@ function readFile(){
                         radius: radius * 100,
                         pos: new THREE.Vector3(x * 100, y * 100, z * 100)
                     };
-                    tree1.push(circle);
+                    trunk.push(circle);
                     branchlength--;
+                    if(branchlength==0){
+                        if(tree1==null)
+                            tree1 = new Tree(trunk);
+                        else{
+                            insert(trunk,child,struct1.length);
+                        }
+                        trunk=[];
+                    }
                 }
             }
             createTree();
@@ -441,11 +461,13 @@ function blending(){
     if(trunk2[0]=='0'){
         for(var i=0;i<trunk1.length;i++) {
                 var cicle={radius:(trunk1[i].radius)/2,pos:trunk1[i].pos.divideScalar(2)};
+            midTree.push(cicle);
             }
     }
     if(trunk1[0]=='0'){
         for(var i=0;i<trunk2.length;i++) {
             var cicle={radius:(trunk2[i].radius)/2,pos:trunk2[i].pos.divideScalar(2)};
+            midTree.push(cicle);
         }
     }
     drawBranch();
@@ -481,9 +503,9 @@ function drawBranch() {
                 pos.z = 0;
             }
             if(posy>=posz&&posy>=posx) {
-                pos.x = rd * Math.sin(2 * Math.PI / seg * s);
+                pos.x = rd * Math.cos(2 * Math.PI / seg * s);
                 pos.y = 0;
-                pos.z = rd * Math.cos(2 * Math.PI / seg * s);
+                pos.z = rd * Math.sin(2 * Math.PI / seg * s);
             }
             geo.vertices.push(pos.add(circle.pos));
         }
