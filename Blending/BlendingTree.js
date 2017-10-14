@@ -89,8 +89,8 @@ function initObject(){
 var struct1=[];
 var struct2=[];
 var tree1=null;
-var tree2=[];
-var midTree=[];
+var tree2=null;
+var midTree=null;
 function readFile(){
     var loaderTree1 = new THREE.FileLoader();
     var loaderTree2 = new THREE.FileLoader();
@@ -181,7 +181,7 @@ function readFile(){
                         if(tree1==null)
                             tree1 = new Tree(trunk);
                         else{
-                            insert(trunk,child,struct1.length);
+                            insert(trunk,child,struct1.length,tree1);
                         }
                         trunk=[];
                     }
@@ -212,7 +212,9 @@ function readFile(){
             var x="", y="",z="";
             var radius="";
             var temp=0;
-            var branchlength=0;
+            var branchlength="";
+            var trunk=[];
+            var child="";
             // output the text to the console
             for(var i=0;i<data.length;i++) {
                 temp = 0;
@@ -226,30 +228,32 @@ function readFile(){
                         number += data[i + 10].toString();
                         if (data[i + 11] != '\r') {
                             number += data[i + 11].toString();
-                            i+=21;
+                            i+=14;
                         }
                         else{
-                            i+=20;
+                            i+=13;
                         }
                     }
                     else{
-                        i+=19;
+                        i+=12;
                     }
                     struct2.push(number);
-                    if(data[i]=='\r')
-                        i--;
-                    if(data[i-1]=='\r')
-                    i-=2;
                 }
-                if(data[i+2]=='\r') {
-                    branchlength = data[i].toString() + data[i + 1].toString();
-                    i += 4;
+                if(data[i+5]=='\r'||data[i+4]=='\r'||data[i+3]=='\r') {
+                    branchlength='';
+                    child='';
+                    while (data[i] != ' ') {
+                        child += data[i].toString();
+                        i++;
+                    }
+                    while (data[i] != '\n')i++;
+                    i++;
+                    while (data[i] != '\r') {
+                        branchlength += data[i].toString();
+                        i++;
+                    }
                     sequence++;
-                }
-                if(data[i+1]=='\r'){
-                    branchlength = data[i].toString();
-                    i += 3;
-                    sequence++;
+                    i += 2;
                 }
                 for(var j=i;data[j]!='\r'&&j<data.length;j++) {
                     if(data[j]!=' ') {
@@ -277,8 +281,16 @@ function readFile(){
                         radius: radius * 100,
                         pos: new THREE.Vector3(x * 100, y * 100, z * 100)
                     };
-                    tree2.push(circle);
+                    trunk.push(circle);
                     branchlength--;
+                    if(branchlength==0){
+                        if(tree2==null)
+                            tree2 = new Tree(trunk);
+                        else{
+                            insert(trunk,child,struct2.length,tree2);
+                        }
+                        trunk=[];
+                    }
                 }
             }
         },
@@ -306,7 +318,9 @@ function createTree(){
             for (l,maxsequence=l+parseInt(struct1[m])-1; l <= maxsequence; l++) {
                 trunk1 = [];
                 trunk2 = [];
-                for ( i ; i < tree1.length; i++) {
+                find(tree1,l,1);
+                find(tree2,l,2);
+                /*for ( i ; i < tree1.length; i++) {
                     if (tree1[i].sequence == l) {
                         trunk1.push(tree1[i]);
                         if (tree1[i + 1].sequence != l)
@@ -319,7 +333,7 @@ function createTree(){
                         if (tree2[j + 1].sequence != l)
                             break;
                     }
-                }
+                }*/
                 blending();
             }
         }
@@ -362,17 +376,24 @@ function createTree(){
                 for (l,maxsequence=l+parseInt(struct1[m])-1; l <= maxsequence; l++) {
                     trunk1 = [];
                     trunk2 = [];
-                    for ( i ; i < tree1.length; i++) {
+                    find(tree1,l,1);
+
+                    /*for ( i ; i < tree1.length; i++) {
                         if (tree1[i].sequence == l) {
                             trunk1.push(tree1[i]);
                             if (i+1<tree1.length&&tree1[i + 1].sequence != l)
                                 break;
                         }
-                    }
+                    }*/
 
-                    if(tree2[j].sequence-l/interval>1)
-                        t=parseInt(tree2[j].sequence-l/interval);
-                    for (j ; j < tree2.length; j++) {
+                   /* if(tree2[j].sequence-l/interval>1)
+                        t=parseInt(tree2[j].sequence-l/interval);*/
+                    if((l+1)%interval==0&&(l+1)/interval<=parseInt(struct2[m]+1))
+                        find(tree2,(l+1)/interval,2);
+                    else{
+                        trunk2.push('0');
+                    }
+                    /*for (j ; j < tree2.length; j++) {
                         if (tree2[j].sequence == l/interval+t && tree2[j].sequence<= minsequence) {
                             trunk2.push(tree2[j]);
                             if (tree2[j + 1].sequence != l/interval+t){
@@ -387,7 +408,7 @@ function createTree(){
                             trunk2.push('0');
                             break;
                         }
-                    }
+                    }*/
                     blending();
                 }
             }
@@ -429,15 +450,16 @@ function createTree(){
         }
     }
 }
+var midtrunk=[];
 function blending(){
-    midTree=[];
+    midtrunk=[];
     if(trunk1.length ==trunk2.length&& trunk2[0]!='0'){
         for(var i=0;i<trunk1.length;i++) {
             var cicle = {
                 radius: (trunk1[i].radius + trunk2[i].radius) / 2,
                 pos: trunk1[i].pos.add(trunk2[i].pos).divideScalar(2)
             };
-            midTree.push(cicle);
+            midtrunk.push(cicle);
         }
     }
     if(trunk1.length >trunk2.length&& trunk2[0]!='0'){
@@ -446,7 +468,7 @@ function blending(){
                 radius: (trunk1[i*parseInt(trunk1.length/trunk2.length)-1].radius + trunk2[i-1].radius) / 2,
                 pos: trunk1[i*parseInt(trunk1.length/trunk2.length)-1].pos.add(trunk2[i-1].pos).divideScalar(2)
             };
-            midTree.push(cicle);
+            midtrunk.push(cicle);
         }
     }
     if(trunk1.length <trunk2.length && trunk1[0]!='0'){
@@ -455,42 +477,44 @@ function blending(){
                 radius: (trunk2[i*parseInt(trunk2.length/trunk1.length)-1].radius + trunk1[i-1].radius) / 2,
                 pos: trunk2[i*parseInt(trunk2.length/trunk1.length)-1].pos.add(trunk1[i-1].pos).divideScalar(2)
             };
-            midTree.push(cicle);
+            midtrunk.push(cicle);
         }
     }
     if(trunk2[0]=='0'){
         for(var i=0;i<trunk1.length;i++) {
                 var cicle={radius:(trunk1[i].radius)/2,pos:trunk1[i].pos.divideScalar(2)};
-            midTree.push(cicle);
+            midtrunk.push(cicle);
             }
     }
     if(trunk1[0]=='0'){
         for(var i=0;i<trunk2.length;i++) {
             var cicle={radius:(trunk2[i].radius)/2,pos:trunk2[i].pos.divideScalar(2)};
-            midTree.push(cicle);
+            midtrunk.push(cicle);
         }
     }
+    if(!midTree)
+        midTree=new Tree();
     drawBranch();
     scene.add(branch);
 }
 function drawBranch() {
     var seg = 30;
     var geo = new THREE.Geometry();
-    for(var i = 0, l = midTree.length; i < l; i ++){
-        var circle = midTree[i];
+    for(var i = 0, l = midtrunk.length; i < l; i ++){
+        var circle = midtrunk[i];
         for(var s=0;s<seg;s++){//for each point in the circle
             var rd = circle.radius;
             var pos = new THREE.Vector3(0,0,0);
             var posx=0,posy=0,posz=0;
             if(i>0) {
-                posx = Math.abs(midTree[i].pos.x - midTree[i - 1].pos.x);
-                posy = Math.abs(midTree[i].pos.y - midTree[i - 1].pos.y);
-                posz = Math.abs(midTree[i].pos.z - midTree[i - 1].pos.z);
+                posx = Math.abs(midtrunk[i].pos.x - midtrunk[i - 1].pos.x);
+                posy = Math.abs(midtrunk[i].pos.y - midtrunk[i - 1].pos.y);
+                posz = Math.abs(midtrunk[i].pos.z - midtrunk[i - 1].pos.z);
             }
             if(i==0){
-                posx = Math.abs(midTree[i+1].pos.x - midTree[i].pos.x);
-                posy = Math.abs(midTree[i+1].pos.y - midTree[i].pos.y);
-                posz = Math.abs(midTree[i+1].pos.z - midTree[i].pos.z);
+                posx = Math.abs(midtrunk[i+1].pos.x - midtrunk[i].pos.x);
+                posy = Math.abs(midtrunk[i+1].pos.y - midtrunk[i].pos.y);
+                posz = Math.abs(midtrunk[i+1].pos.z - midtrunk[i].pos.z);
             }
             if(posx>=posy&&posx>=posz) {
                 pos.x = 0;
