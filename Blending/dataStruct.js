@@ -2,6 +2,7 @@ function Node(branch) {
     this.branch = branch;
     this.parent = null;
     this.right =null;
+    this.left=null;
     this.children = [];
 }
 function Tree (data) {
@@ -14,6 +15,7 @@ function insert(data,child,layer,tree) {
     child=parseInt(child);
     var temp=child;
     var parent;
+    var leftParent;
     while(current) {
         parent = current;
         if(layer-1==1) {
@@ -22,21 +24,29 @@ function insert(data,child,layer,tree) {
             }
             else if(child>0){
                 while(temp!=0){
+                    leftParent=parent;
                     parent=parent.right;
                     temp--;
                 }
-                if(parent.children[0]==null)
+                if(parent.children[0]==null){
                     parent.children[0]=n;
+                    leftParent=leftParent.children[0];
+                    while(leftParent.right)leftParent=leftParent.right;
+                    leftParent.right=n;
+                    n.left=leftParent;
+                }
                 else{
                     current = parent.children[0];
                     while (current.right)current = current.right;
                     current.right = n;
+                    n.left=current;
                 }
             }
             else {
                 current = parent.children[0];
                 while (current.right)current = current.right;
                 current.right = n;
+                n.left=current;
             }
             current = n;
             current.parent = parent;
@@ -91,7 +101,11 @@ function find(tree,sequence,type){
             trunk2=current.branch;
     }
     else{
-        for(var i=0;i<parent.children.length;i++)
-            find(parent.children[i],sequence,type);
+        if(current.right)
+            find(current.right,sequence,type);
+        else {
+            while (current.left)current = current.left;
+            find(current.children[0],sequence,type);
+        }
     }
 }

@@ -338,41 +338,61 @@ function createTree(){
             }
         }
         else if(m>=struct1.length){
-            for (l=tree2[j].sequence,maxsequence=l+parseInt(struct2[m])-1; l <= maxsequence; l++) {
+            l=0;
+            for(var i=0;i<m;i++){
+                l+=parseInt(struct2[i]);
+            }
+            l++;
+            for (l,maxsequence=l+parseInt(struct2[m])-1; l <= maxsequence; l++) {
                 trunk1 = [];
                 trunk2 = [];
-                for (j; j < tree2.length; j++) {
+                /*for (j; j < tree2.length; j++) {
                     if (tree2[j].sequence == l) {
                         trunk2.push(tree2[j]);
                         if (j+1<tree2.length && tree2[j + 1].sequence != l)
                             break;
                     }
-                }
+                }*/
+                find(tree2,l,2);
                 trunk1.push('0');
                 blending();
             }
         }
         else if(m>=struct2.length){
-            for (l=tree1[j].sequence,maxsequence=l+parseInt(struct1[m])-1; l <= maxsequence; l++) {
+            l=0;
+            for(var i=0;i<m;i++){
+                l+=parseInt(struct1[i]);
+            }
+            l++;
+            for (l,maxsequence=l+parseInt(struct1[m])-1; l <= maxsequence; l++) {
                 trunk1 = [];
                 trunk2 = [];
-                for (j; j < tree1.length; j++) {
+                /*for (j; j < tree1.length; j++) {
                     if (tree1[j].sequence == l) {
                         trunk1.push(tree1[j]);
                         if (j+1<tree1.length && tree1[j + 1].sequence != l)
                             break;
                     }
-                }
+                }*/
+                find(tree1,l,1);
                 trunk2.push('0');
                 blending();
             }
         }
         else if(m<struct1.length && m<struct2.length && parseInt(struct1[m])!=parseInt(struct2[m])){
             var interval;
+            var  minsequence=0;
+            var max2sequence=0
             var t=1;
+            var flag=false;
             if(parseInt(struct1[m])>parseInt(struct2[m])){
                 interval=parseInt(parseInt(struct1[m])/parseInt(struct2[m]));
-                var minsequence = parseInt(struct2[m])+l-1;
+                for(var i=0;i<m;i++){
+                    minsequence+=parseInt(struct2[i]);
+                }
+                for(var i=0;i<=m;i++){
+                    max2sequence+=parseInt(struct2[i]);
+                }
                 for (l,maxsequence=l+parseInt(struct1[m])-1; l <= maxsequence; l++) {
                     trunk1 = [];
                     trunk2 = [];
@@ -385,11 +405,14 @@ function createTree(){
                                 break;
                         }
                     }*/
-
-                   /* if(tree2[j].sequence-l/interval>1)
+                    if(minsequence+1-l/interval>1 && flag==false) {
+                        t = parseInt(minsequence + 1 - l / interval);
+                        flag=true;
+                    }
+                    /*if(tree2[j].sequence-l/interval>1)
                         t=parseInt(tree2[j].sequence-l/interval);*/
-                    if((l+1)%interval==0&&(l+1)/interval<=parseInt(struct2[m]+1))
-                        find(tree2,(l+1)/interval,2);
+                    if(l%interval==0&&l/interval+t<=max2sequence)
+                        find(tree2,l/interval+t,2);
                     else{
                         trunk2.push('0');
                     }
@@ -414,11 +437,28 @@ function createTree(){
             }
             else{
                 interval=parseInt(parseInt(struct2[m])/parseInt(struct1[m]));
-                minsequence = parseInt(struct1[m])+l-1;
-                for (l,maxsequence=l+parseInt(struct1[m])-1; l <= maxsequence; l++) {
+                for(var i=0;i<m;i++){
+                    minsequence+=parseInt(struct1[i]);
+                }
+                for(var i=0;i<=m;i++){
+                    max2sequence+=parseInt(struct1[i]);
+                }
+               // minsequence = parseInt(struct1[m])+l-1;
+                for (l,maxsequence=l+parseInt(struct2[m])-1; l <= maxsequence; l++) {
                     trunk1 = [];
                     trunk2 = [];
-                    for ( j ; j < tree2.length; j++) {
+                    find(tree2,l,2);
+                    if(minsequence+1-l/interval>1 && flag==false) {
+                        t = parseInt(minsequence + 1 - l / interval);
+                        flag=true;
+                    }
+
+                    if(l%interval==0&&l/interval+t<=max2sequence)
+                        find(tree1,l/interval+t,1);
+                    else{
+                        trunk1.push('0');
+                    }
+                    /*for ( j ; j < tree2.length; j++) {
                         if (tree2[j].sequence == l) {
                             trunk2.push(tree2[j]);
                             if (j+1<tree2.length&&tree2[j + 1].sequence != l)
@@ -443,7 +483,7 @@ function createTree(){
                             trunk1.push('0');
                             break;
                         }
-                    }
+                    }*/
                     blending();
                 }
             }
@@ -472,7 +512,7 @@ function blending(){
         }
     }
     if(trunk1.length <trunk2.length && trunk1[0]!='0'){
-        for(var i=0;i<trunk1.length;i++) {
+        for(var i=1;i<trunk1.length;i++) {
             var cicle = {
                 radius: (trunk2[i*parseInt(trunk2.length/trunk1.length)-1].radius + trunk1[i-1].radius) / 2,
                 pos: trunk2[i*parseInt(trunk2.length/trunk1.length)-1].pos.add(trunk1[i-1].pos).divideScalar(2)
