@@ -90,7 +90,6 @@ var struct1=[];
 var struct2=[];
 var tree1=null;
 var tree2=null;
-var midTree=null;
 function readFile(){
     var loaderTree1 = new THREE.FileLoader();
     var loaderTree2 = new THREE.FileLoader();
@@ -109,6 +108,7 @@ function readFile(){
             var branchlength="";
             var trunk=[];
             var child="";
+            var position="";
             // output the text to the console
             for(var i=0;i<data.length;i++) {
                 temp = 0;
@@ -136,12 +136,17 @@ function readFile(){
                 if(data[i+5]=='\r'||data[i+4]=='\r'||data[i+3]=='\r') {
                     branchlength='';
                     child='';
+                    position='';
                     while (data[i] != ' ') {
                         child += data[i].toString();
                         i++;
                     }
-                    while (data[i] != '\n')i++;
                     i++;
+                    while (data[i] != '\r'){
+                        position += data[i].toString();
+                        i++;
+                    }
+                    i+=2;
                     while (data[i] != '\r') {
                         branchlength += data[i].toString();
                         i++;
@@ -173,6 +178,7 @@ function readFile(){
                     circle = {
                         sequence: sequence,
                         radius: radius * 100,
+                        position:position,
                         pos: new THREE.Vector3(x * 100, y * 100, z * 100)
                     };
                     trunk.push(circle);
@@ -187,6 +193,7 @@ function readFile(){
                     }
                 }
             }
+     //       binaryTree();
             createTree();
         },
 
@@ -215,6 +222,7 @@ function readFile(){
             var branchlength="";
             var trunk=[];
             var child="";
+            var position="";
             // output the text to the console
             for(var i=0;i<data.length;i++) {
                 temp = 0;
@@ -242,12 +250,17 @@ function readFile(){
                 if(data[i+5]=='\r'||data[i+4]=='\r'||data[i+3]=='\r') {
                     branchlength='';
                     child='';
+                    position='';
                     while (data[i] != ' ') {
                         child += data[i].toString();
                         i++;
                     }
-                    while (data[i] != '\n')i++;
                     i++;
+                    while (data[i] != '\r'){
+                        position += data[i].toString();
+                        i++;
+                    }
+                    i+=2;
                     while (data[i] != '\r') {
                         branchlength += data[i].toString();
                         i++;
@@ -279,6 +292,7 @@ function readFile(){
                     circle = {
                         sequence: sequence,
                         radius: radius * 100,
+                        position:position,
                         pos: new THREE.Vector3(x * 100, y * 100, z * 100)
                     };
                     trunk.push(circle);
@@ -306,60 +320,67 @@ function readFile(){
         }
     );
 }
-var trunk1;
-var trunk2;
+
+function addzero(m,currentTree1,currentTree2){
+
+    var layer = m;
+    currentTree2 = currentTree2.root;
+    currentTree1 = currentTree1.root;
+    for(layer=layer-1;layer>0;layer--){
+        currentTree2 = currentTree2.children[0];
+        currentTree1 = currentTree1.children[0];
+    }
+
+    for(;currentTree2!=null;currentTree2=currentTree2.right,currentTree1=currentTree1.right){
+        for(var temp=currentTree2.children[0];temp.parent==currentTree2 && temp.right!=null;temp=temp.right){
+            if(currentTree1.children[0]==null){
+                currentTree1.children[0]=new Node('0');
+                currentTree1.children[0].parent=currentTree1;
+                if(currentTree1.left!=null) {
+                    var leftParent = currentTree1.left.children[0];
+                    while (leftParent.right)leftParent = leftParent.right;
+                    currentTree1.children[0].left = leftParent;
+                    leftParent.right = currentTree1.children[0];
+                }
+            }
+            else{
+                var current = currentTree1.children[0];
+                while (current.right)current = current.right;
+                var zero = new Node('0');
+                current.right = zero;
+                zero.left=current;
+                zero.parent=currentTree1;
+            }
+        }
+    }
+}
+
+
 function createTree(){
-    var maxsequence;
-    var l= 1;
-    var i=0;
-    var j=0;
     for(var m=0;m<struct1.length||m<struct2.length;m++) {
-        if(m<struct1.length && m<struct2.length && parseInt(struct1[m])==parseInt(struct2[m])) {
+       /* if(m<struct1.length && m<struct2.length && parseInt(struct1[m])==parseInt(struct2[m])) {
             for (l,maxsequence=l+parseInt(struct1[m])-1; l <= maxsequence; l++) {
                 trunk1 = [];
                 trunk2 = [];
                 find(tree1,l,1);
                 find(tree2,l,2);
-                /*for ( i ; i < tree1.length; i++) {
-                    if (tree1[i].sequence == l) {
-                        trunk1.push(tree1[i]);
-                        if (tree1[i + 1].sequence != l)
-                            break;
-                    }
-                }
-                for (j ; j < tree2.length; j++) {
-                    if (tree2[j].sequence == l) {
-                        trunk2.push(tree2[j]);
-                        if (tree2[j + 1].sequence != l)
-                            break;
-                    }
-                }*/
-                blending();
             }
-        }
-        else if(m>=struct1.length){
-            l=0;
+        }*/
+        if(m>=struct1.length){
+            /*l=0;
             for(var i=0;i<m;i++){
-                l+=parseInt(struct2[i]);
+                l += parseInt(struct2[i]);
             }
             l++;
-            for (l,maxsequence=l+parseInt(struct2[m])-1; l <= maxsequence; l++) {
+            for (l,maxsequence = l+parseInt(struct2[m])-1; l <= maxsequence; l++) {
                 trunk1 = [];
                 trunk2 = [];
-                /*for (j; j < tree2.length; j++) {
-                    if (tree2[j].sequence == l) {
-                        trunk2.push(tree2[j]);
-                        if (j+1<tree2.length && tree2[j + 1].sequence != l)
-                            break;
-                    }
-                }*/
                 find(tree2,l,2);
-                trunk1.push('0');
-                blending();
-            }
+                trunk1.push('0');*/
+            addzero(m,tree1,tree2);
         }
         else if(m>=struct2.length){
-            l=0;
+            /*l=0;
             for(var i=0;i<m;i++){
                 l+=parseInt(struct1[i]);
             }
@@ -367,22 +388,59 @@ function createTree(){
             for (l,maxsequence=l+parseInt(struct1[m])-1; l <= maxsequence; l++) {
                 trunk1 = [];
                 trunk2 = [];
-                /*for (j; j < tree1.length; j++) {
-                    if (tree1[j].sequence == l) {
-                        trunk1.push(tree1[j]);
-                        if (j+1<tree1.length && tree1[j + 1].sequence != l)
-                            break;
-                    }
-                }*/
                 find(tree1,l,1);
                 trunk2.push('0');
-                blending();
-            }
+
+            }*/
+            addzero(m,tree2,tree1);
         }
         else if(m<struct1.length && m<struct2.length && parseInt(struct1[m])!=parseInt(struct2[m])){
-            var interval;
+            if(parseInt(struct1[m])>parseInt(struct2[m])){
+                var zeroNumber = parseInt(struct1[m])-parseInt(struct2[m]);
+                var interval = parseInt(parseInt(struct1[m])/parseInt(struct2[m]));
+                var currentTree1 = tree1.root;
+                var currentTree2 = tree2.root;
+                for(var layer=m;layer>0;layer--){
+                    currentTree2 = currentTree2.children[0];
+                    currentTree1 = currentTree1.children[0];
+                }
+                var i=0;
+                var flag = false;
+                for(;currentTree1.right!=null && zeroNumber >0;currentTree1=currentTree1.right,currentTree2=currentTree2.right){
+                    flag=false;
+                    for(i;i%interval==0 && zeroNumber>0;i++){
+                        var zero = new Node('0');
+                        if(currentTree2.right!=null) {
+                            var temp = currentTree2.right;
+                            currentTree2.right = zero;
+                            zero.left = currentTree2;
+                            zero.right = temp;
+                            temp.left = zero;
+                            zero.parent = currentTree2.parent;
+                            zeroNumber--;
+                            flag = true;
+                        }
+                        else{
+                            currentTree2.right = zero;
+                            zero.left = currentTree2;
+                            zero.parent = currentTree2.parent;
+                            zeroNumber--;
+                            flag = true;
+                        }
+                    }
+                    if(flag==false) {
+                        i++;
+                        if(currentTree2.right==null)
+                            currentTree2 = currentTree2.left;
+                    }
+                }
+            }
+            else{
+
+            }
+            /*var interval;
             var  minsequence=0;
-            var max2sequence=0
+            var max2sequence=0;
             var t=1;
             var flag=false;
             if(parseInt(struct1[m])>parseInt(struct2[m])){
@@ -398,41 +456,17 @@ function createTree(){
                     trunk2 = [];
                     find(tree1,l,1);
 
-                    /*for ( i ; i < tree1.length; i++) {
-                        if (tree1[i].sequence == l) {
-                            trunk1.push(tree1[i]);
-                            if (i+1<tree1.length&&tree1[i + 1].sequence != l)
-                                break;
-                        }
-                    }*/
                     if(minsequence+1-l/interval>1 && flag==false) {
                         t = parseInt(minsequence + 1 - l / interval);
                         flag=true;
                     }
-                    /*if(tree2[j].sequence-l/interval>1)
-                        t=parseInt(tree2[j].sequence-l/interval);*/
-                    if(l%interval==0&&l/interval+t<=max2sequence)
+
+                    if(l%interval==0 && l/interval+t<=max2sequence && currenttrunk.parent.half==false)
                         find(tree2,l/interval+t,2);
                     else{
                         trunk2.push('0');
+                        find(tree1,l,0);
                     }
-                    /*for (j ; j < tree2.length; j++) {
-                        if (tree2[j].sequence == l/interval+t && tree2[j].sequence<= minsequence) {
-                            trunk2.push(tree2[j]);
-                            if (tree2[j + 1].sequence != l/interval+t){
-                                j++;
-                                break;
-                            }
-                        }
-                        else if(tree2[j+1].sequence == l/interval+t&& tree2[j].sequence<= minsequence){
-
-                        }
-                        else{
-                            trunk2.push('0');
-                            break;
-                        }
-                    }*/
-                    blending();
                 }
             }
             else{
@@ -443,7 +477,7 @@ function createTree(){
                 for(var i=0;i<=m;i++){
                     max2sequence+=parseInt(struct1[i]);
                 }
-               // minsequence = parseInt(struct1[m])+l-1;
+
                 for (l,maxsequence=l+parseInt(struct2[m])-1; l <= maxsequence; l++) {
                     trunk1 = [];
                     trunk2 = [];
@@ -458,35 +492,9 @@ function createTree(){
                     else{
                         trunk1.push('0');
                     }
-                    /*for ( j ; j < tree2.length; j++) {
-                        if (tree2[j].sequence == l) {
-                            trunk2.push(tree2[j]);
-                            if (j+1<tree2.length&&tree2[j + 1].sequence != l)
-                                break;
-                        }
-                    }
 
-                    if(tree1[i].sequence-l/interval>1)
-                        t=parseInt(tree1[i].sequence-l/interval);
-                    for (i ; i < tree1.length; i++) {
-                        if (tree1[i].sequence == l/interval+t && tree1[i].sequence<= minsequence) {
-                            trunk1.push(tree1[i]);
-                            if (tree1[i + 1].sequence != l/interval+t){
-                                i++;
-                                break;
-                            }
-                        }
-                        else if(tree1[i+1].sequence == l/interval+t&& tree1[i].sequence<= minsequence){
-
-                        }
-                        else{
-                            trunk1.push('0');
-                            break;
-                        }
-                    }*/
-                    blending();
                 }
-            }
+            }*/
         }
     }
 }
@@ -599,54 +607,25 @@ function initScene() {
     scene.add(loadGround());
     scene.add(loadSky());
 }
-/*function cut(){
-    forest.remove(selected);
-    forests.push(forest);
-    sequence=forests.length-1;
-    removeByValue(normalTree, cutTree);
-    scene.remove(selected);
-    forestsize--;
-}
-function removeByValue(arr, val) {
-    for(var i=0; i<arr.length; i++) {
-        if(arr[i] == val) {
-            arr.splice(i, 1);
-            break;
-        }
-    }
-}
-function copy(){
-    forestsize++;
-    var copy=selected.clone();
-    copy.position.x=0;
-    copy.position.z=0;
-    forest.add(copy);
-    forests.push(forest);
-    normalTree.push(copy.children[0]);
-    sequence=forests.length-1;
-    scene.add(forest);
-}*/
-var treeParameter = {
-    scale:false
-//    copy:copy,
- //   cut:cut
-};
+
 var gui;
+var treeParameter;
 function initGUI() {
     gui = new dat.gui.GUI();
+    treeParameter = {
+        scale:false
+    };
     gui.remember(treeParameter);
 
     gui.add( treeParameter, 'scale').onFinishChange(function (e) {
         treeParameter.scale=e;
     });
- //   gui.add(treeParameter,"copy");
-  //  gui.add(treeParameter,"cut");
+
 }
 
 
 var mouse = new THREE.Vector2();
 var selected = null;
-var cutTree = null;
 function onclick(event) {
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
@@ -661,7 +640,6 @@ function onclick(event) {
     if(intersects01.length) {
         gui.domElement.hidden = false;
         selected=normalTree[0];
-        cutTree = intersects01[0].object;
         if (!treeParameter.scale) {
             tracontrols.attach(selected);
             rotcontrols.attach(selected);
@@ -674,7 +652,6 @@ function onclick(event) {
     else if(intersects02.length) {
         gui.domElement.hidden = false;
         selected=normalTree[1];
-        cutTree = intersects02[0].object;
         if (!treeParameter.scale) {
             tracontrols.attach(selected);
             rotcontrols.attach(selected);

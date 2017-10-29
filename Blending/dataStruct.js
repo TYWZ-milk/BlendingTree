@@ -56,34 +56,6 @@ function insert(data,child,layer,tree) {
             current=parent.children[0];
             layer--;
         }
-/*        if(layer-1==1) {
-            while(child!=temp) {
-                parent = parent.right;
-                temp--;
-            }
-            if(parent.children[child]==null) {
-                parent.children[child] = n;
-            }
-            else{
-                current=parent.children[child];
-                while(current.right)current=current.right;
-                current.right=n;
-
-            }
-            current = n;
-            current.parent = parent;
-            if (child != 0)
-                parent.children[child - 1].right = current;
-            break;
-
-        }
-        else{
-            if(child==0)
-                current=parent.children[0];
-            else
-
-            layer--;
-        }*/
     }
 }
 
@@ -95,10 +67,17 @@ function find(tree,sequence,type){
         current = tree;
     var parent = current;
     if(current.branch[0].sequence==sequence){
-        if(type==1)
+        if(type==1){
             trunk1=current.branch;
-        if(type==2)
+            currenttrunk=current;
+        }
+
+        else if(type==2){
             trunk2=current.branch;
+            currenttrunk=current;
+        }
+        else
+            current.half=true;
     }
     else{
         if(current.right)
