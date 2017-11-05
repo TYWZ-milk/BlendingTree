@@ -59,6 +59,7 @@ function insert(data,child,layer,tree) {
     }
 }
 
+/*
 function find(tree,sequence,type){
     var current;
     if(tree.parent==null)
@@ -87,4 +88,4 @@ function find(tree,sequence,type){
             find(current.children[0],sequence,type);
         }
     }
-}
+}*/
