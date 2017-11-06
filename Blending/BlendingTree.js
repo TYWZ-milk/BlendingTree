@@ -516,53 +516,6 @@ function createTree(){
         }
     }
 }
-var midtrunk=[];
-function blending(){
-    midtrunk=[];
-    if(trunk1.length ==trunk2.length&& trunk2[0]!='0'){
-        for(var i=0;i<trunk1.length;i++) {
-            var cicle = {
-                radius: (trunk1[i].radius + trunk2[i].radius) / 2,
-                pos: trunk1[i].pos.add(trunk2[i].pos).divideScalar(2)
-            };
-            midtrunk.push(cicle);
-        }
-    }
-    if(trunk1.length >trunk2.length&& trunk2[0]!='0'){
-        for(var i=1;i<=trunk2.length;i++) {
-            var cicle = {
-                radius: (trunk1[i*parseInt(trunk1.length/trunk2.length)-1].radius + trunk2[i-1].radius) / 2,
-                pos: trunk1[i*parseInt(trunk1.length/trunk2.length)-1].pos.add(trunk2[i-1].pos).divideScalar(2)
-            };
-            midtrunk.push(cicle);
-        }
-    }
-    if(trunk1.length <trunk2.length && trunk1[0]!='0'){
-        for(var i=1;i<trunk1.length;i++) {
-            var cicle = {
-                radius: (trunk2[i*parseInt(trunk2.length/trunk1.length)-1].radius + trunk1[i-1].radius) / 2,
-                pos: trunk2[i*parseInt(trunk2.length/trunk1.length)-1].pos.add(trunk1[i-1].pos).divideScalar(2)
-            };
-            midtrunk.push(cicle);
-        }
-    }
-    if(trunk2[0]=='0'){
-        for(var i=0;i<trunk1.length;i++) {
-                var cicle={radius:(trunk1[i].radius)/2,pos:trunk1[i].pos.divideScalar(2)};
-            midtrunk.push(cicle);
-            }
-    }
-    if(trunk1[0]=='0'){
-        for(var i=0;i<trunk2.length;i++) {
-            var cicle={radius:(trunk2[i].radius)/2,pos:trunk2[i].pos.divideScalar(2)};
-            midtrunk.push(cicle);
-        }
-    }
-    if(!midTree)
-        midTree=new Tree();
-    drawBranch();
-    scene.add(branch);
-}
 function drawBranch() {
     var seg = 30;
     var geo = new THREE.Geometry();
