@@ -51,22 +51,24 @@ function blending(){
         if(point1.rightNode) {
             child1 = point1.rightNode;
             child2 = point2.rightNode;
-            for (var i = 0; i < child1.branch.length; i++) {
+
+            for (var i = 0; i < child1.branch.length || i<child2.branch.length; i++) {
                 if (child2.branch == "0")
                     cicle = {
-                        radius: (child1.branch[0].radius) / 2,
-                        pos: child1.branch[0].pos.divideScalar(2)
+                        radius: (child1.branch[i].radius),
+                        pos: child1.branch[i].pos
                     };
                 else if (child1.branch == "0")
                     cicle = {
-                        radius: (child2.branch[0].radius) / 2,
-                        pos: child2.branch[0].pos.divideScalar(2)
+                        radius: (child2.branch[i].radius) / 2,
+                        pos: child2.branch[i].pos.divideScalar(2)
                     };
-                else
+                else if(i<child1.branch.length && i<child2.branch.length)
                     cicle = {
-                        radius: (child1.branch[0].radius + child2.branch[0].radius) / 2,
-                        pos: child1.branch[0].pos.add(point2.branch[0].pos).divideScalar(2)
+                        radius: (child1.branch[i].radius + child2.branch[i].radius) / 2,
+                        pos: child1.branch[i].pos.add(child2.branch[i].pos).divideScalar(2)
                     };
+                else break;
                 right.push(cicle);
             }
         }
@@ -79,50 +81,6 @@ function blending(){
         point1 = point1.leftNode;
         point2 = point2.leftNode;
     }
-    /*midtrunk=[];
-    if(trunk1.length ==trunk2.length&& trunk2[0]!='0'){
-        for(var i=0;i<trunk1.length;i++) {
-            var cicle = {
-                radius: (trunk1[i].radius + trunk2[i].radius) / 2,
-                pos: trunk1[i].pos.add(trunk2[i].pos).divideScalar(2)
-            };
-            midtrunk.push(cicle);
-        }
-    }
-    if(trunk1.length >trunk2.length&& trunk2[0]!='0'){
-        for(var i=1;i<=trunk2.length;i++) {
-            var cicle = {
-                radius: (trunk1[i*parseInt(trunk1.length/trunk2.length)-1].radius + trunk2[i-1].radius) / 2,
-                pos: trunk1[i*parseInt(trunk1.length/trunk2.length)-1].pos.add(trunk2[i-1].pos).divideScalar(2)
-            };
-            midtrunk.push(cicle);
-        }
-    }
-    if(trunk1.length <trunk2.length && trunk1[0]!='0'){
-        for(var i=1;i<trunk1.length;i++) {
-            var cicle = {
-                radius: (trunk2[i*parseInt(trunk2.length/trunk1.length)-1].radius + trunk1[i-1].radius) / 2,
-                pos: trunk2[i*parseInt(trunk2.length/trunk1.length)-1].pos.add(trunk1[i-1].pos).divideScalar(2)
-            };
-            midtrunk.push(cicle);
-        }
-    }
-    if(trunk2[0]=='0'){
-        for(var i=0;i<trunk1.length;i++) {
-            var cicle={radius:(trunk1[i].radius)/2,pos:trunk1[i].pos.divideScalar(2)};
-            midtrunk.push(cicle);
-        }
-    }
-    if(trunk1[0]=='0'){
-        for(var i=0;i<trunk2.length;i++) {
-            var cicle={radius:(trunk2[i].radius)/2,pos:trunk2[i].pos.divideScalar(2)};
-            midtrunk.push(cicle);
-        }
-    }
-    if(!midTree)
-        midTree=new Tree();*/
-    drawBranch();
-    scene.add(branch);
 }
 function createBinaryNode(number,tree){
     var binaryTree;

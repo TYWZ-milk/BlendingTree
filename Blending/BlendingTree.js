@@ -308,6 +308,7 @@ function readFile(){
             }
             createTree();
             binaryTree();
+            drawTree();
         },
 
         // Function called when download progresses
@@ -413,40 +414,10 @@ function addZero(m,currentTree1,currentTree2){
 }
 function createTree(){
     for(var m=0;m<struct1.length||m<struct2.length;m++) {
-       /* if(m<struct1.length && m<struct2.length && parseInt(struct1[m])==parseInt(struct2[m])) {
-            for (l,maxsequence=l+parseInt(struct1[m])-1; l <= maxsequence; l++) {
-                trunk1 = [];
-                trunk2 = [];
-                find(tree1,l,1);
-                find(tree2,l,2);
-            }
-        }*/
         if(m>=struct1.length){
-            /*l=0;
-            for(var i=0;i<m;i++){
-                l += parseInt(struct2[i]);
-            }
-            l++;
-            for (l,maxsequence = l+parseInt(struct2[m])-1; l <= maxsequence; l++) {
-                trunk1 = [];
-                trunk2 = [];
-                find(tree2,l,2);
-                trunk1.push('0');*/
             addLayer(m,tree1,tree2);
         }
         else if(m>=struct2.length){
-            /*l=0;
-            for(var i=0;i<m;i++){
-                l+=parseInt(struct1[i]);
-            }
-            l++;
-            for (l,maxsequence=l+parseInt(struct1[m])-1; l <= maxsequence; l++) {
-                trunk1 = [];
-                trunk2 = [];
-                find(tree1,l,1);
-                trunk2.push('0');
-
-            }*/
             addLayer(m,tree2,tree1);
         }
         else if(m<struct1.length && m<struct2.length && parseInt(struct1[m])!=parseInt(struct2[m])){
@@ -456,84 +427,47 @@ function createTree(){
             else{
                 addZero(m,tree2,tree1);
             }
-            /*var interval;
-            var  minsequence=0;
-            var max2sequence=0;
-            var t=1;
-            var flag=false;
-            if(parseInt(struct1[m])>parseInt(struct2[m])){
-                interval=parseInt(parseInt(struct1[m])/parseInt(struct2[m]));
-                for(var i=0;i<m;i++){
-                    minsequence+=parseInt(struct2[i]);
-                }
-                for(var i=0;i<=m;i++){
-                    max2sequence+=parseInt(struct2[i]);
-                }
-                for (l,maxsequence=l+parseInt(struct1[m])-1; l <= maxsequence; l++) {
-                    trunk1 = [];
-                    trunk2 = [];
-                    find(tree1,l,1);
-
-                    if(minsequence+1-l/interval>1 && flag==false) {
-                        t = parseInt(minsequence + 1 - l / interval);
-                        flag=true;
-                    }
-
-                    if(l%interval==0 && l/interval+t<=max2sequence && currenttrunk.parent.half==false)
-                        find(tree2,l/interval+t,2);
-                    else{
-                        trunk2.push('0');
-                        find(tree1,l,0);
-                    }
-                }
-            }
-            else{
-                interval=parseInt(parseInt(struct2[m])/parseInt(struct1[m]));
-                for(var i=0;i<m;i++){
-                    minsequence+=parseInt(struct1[i]);
-                }
-                for(var i=0;i<=m;i++){
-                    max2sequence+=parseInt(struct1[i]);
-                }
-
-                for (l,maxsequence=l+parseInt(struct2[m])-1; l <= maxsequence; l++) {
-                    trunk1 = [];
-                    trunk2 = [];
-                    find(tree2,l,2);
-                    if(minsequence+1-l/interval>1 && flag==false) {
-                        t = parseInt(minsequence + 1 - l / interval);
-                        flag=true;
-                    }
-
-                    if(l%interval==0&&l/interval+t<=max2sequence)
-                        find(tree1,l/interval+t,1);
-                    else{
-                        trunk1.push('0');
-                    }
-
-                }
-            }*/
         }
     }
 }
-function drawBranch() {
+function drawTree(){
+    var trunk = [];
+    var current = blendingTree.root;
+    while(current){  //画主枝干
+        trunk.push(current.data[0]);
+        current = current.leftNode;
+    }
+    drawBranch(trunk);
+    scene.add(branch);
+
+    current = blendingTree.root;
+    while(current.rightNode){//画子枝干
+        trunk = [];
+        for(var i=0;i<current.rightNode.length;i++)
+            trunk.push(current.rightNode[i]);
+        drawBranch(trunk);
+        scene.add(branch);
+        current = current.leftNode;
+    }
+}
+function drawBranch(trunk) {
     var seg = 30;
     var geo = new THREE.Geometry();
-    for(var i = 0, l = midtrunk.length; i < l; i ++){
-        var circle = midtrunk[i];
+    for(var i = 0, l = trunk.length; i < l; i ++){
+        var circle = trunk[i];
         for(var s=0;s<seg;s++){//for each point in the circle
             var rd = circle.radius;
             var pos = new THREE.Vector3(0,0,0);
             var posx=0,posy=0,posz=0;
             if(i>0) {
-                posx = Math.abs(midtrunk[i].pos.x - midtrunk[i - 1].pos.x);
-                posy = Math.abs(midtrunk[i].pos.y - midtrunk[i - 1].pos.y);
-                posz = Math.abs(midtrunk[i].pos.z - midtrunk[i - 1].pos.z);
+                posx = Math.abs(trunk[i].pos.x - trunk[i - 1].pos.x);
+                posy = Math.abs(trunk[i].pos.y - trunk[i - 1].pos.y);
+                posz = Math.abs(trunk[i].pos.z - trunk[i - 1].pos.z);
             }
             if(i==0){
-                posx = Math.abs(midtrunk[i+1].pos.x - midtrunk[i].pos.x);
-                posy = Math.abs(midtrunk[i+1].pos.y - midtrunk[i].pos.y);
-                posz = Math.abs(midtrunk[i+1].pos.z - midtrunk[i].pos.z);
+                posx = Math.abs(trunk[i+1].pos.x - trunk[i].pos.x);
+                posy = Math.abs(trunk[i+1].pos.y - trunk[i].pos.y);
+                posz = Math.abs(trunk[i+1].pos.z - trunk[i].pos.z);
             }
             if(posx>=posy&&posx>=posz) {
                 pos.x = 0;
