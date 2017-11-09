@@ -29,6 +29,29 @@ function binaryTree(){
     createBinaryNode(1,tree1);
     createBinaryNode(2,tree2);
     blending();
+    compact();
+}
+function compact(){
+    var current = blendingTree.root;
+    var right;
+    var x, y,z;
+    while(current.rightNode.length != 0){
+
+        if(current.rightNode != '0') {
+            right = current.rightNode;
+            x = current.data[0].pos.x - right[0].pos.x;
+            y = current.data[0].pos.y - right[0].pos.y;
+            z = current.data[0].pos.z - right[0].pos.z;
+
+            for(var i=0;i<right.length;i++){
+                right[i].pos.x += x;
+                right[i].pos.y += y;
+                right[i].pos.z += z;
+            }
+        }
+
+        current = current.leftNode;
+    }
 }
 function blending(){
     var point1 = binaryTree1.root;
@@ -55,8 +78,8 @@ function blending(){
             for (var i = 0; i < child1.branch.length || i<child2.branch.length; i++) {
                 if (child2.branch == "0")
                     cicle = {
-                        radius: (child1.branch[i].radius),
-                        pos: child1.branch[i].pos
+                        radius: (child1.branch[i].radius) /2,
+                        pos: child1.branch[i].pos.divideScalar(2)
                     };
                 else if (child1.branch == "0")
                     cicle = {
