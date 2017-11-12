@@ -193,7 +193,9 @@ function readFile(){
                     }
                 }
             }
-
+            createTree();
+            binaryTree();
+            drawTree();
         },
 
         // Function called when download progresses
@@ -306,9 +308,7 @@ function readFile(){
                     }
                 }
             }
-            createTree();
-            binaryTree();
-            drawTree();
+
         },
 
         // Function called when download progresses
@@ -334,24 +334,30 @@ function addLayer(m,currentTree1,currentTree2){
     }
 
     for(;currentTree2!=null;currentTree2=currentTree2.right,currentTree1=currentTree1.right){
-        for(var temp=currentTree2.children[0];temp.parent==currentTree2 && temp.right!=null;temp=temp.right){
-            if(currentTree1.children[0]==null){
-                currentTree1.children[0]=new Node('0');
-                currentTree1.children[0].parent=currentTree1;
-                if(currentTree1.left!=null) {
-                    var leftParent = currentTree1.left.children[0];
+        if(currentTree2.branch != '0'){
+            if(currentTree1.children[0] == null){
+                currentTree1.children[0] = new Node('0');
+                currentTree1.children[0].parent = currentTree1;
+                if(currentTree1.left != null) {
+                    var leftParent = currentTree1.left;
+                    while(leftParent.children[0] == null)
+                        leftParent = leftParent.left;
+                    leftParent = leftParent.children[0];
                     while (leftParent.right)leftParent = leftParent.right;
                     currentTree1.children[0].left = leftParent;
                     leftParent.right = currentTree1.children[0];
                 }
             }
-            else{
+            var temp = currentTree2.children[0];
+
+            while(temp.right != null && temp.right.parent == currentTree2){
                 var current = currentTree1.children[0];
                 while (current.right)current = current.right;
                 var zero = new Node('0');
                 current.right = zero;
                 zero.left=current;
                 zero.parent=currentTree1;
+                temp = temp.right;
             }
         }
     }
@@ -375,8 +381,7 @@ function addZero(m,currentTree1,currentTree2){
     var i=1;
     var flag = false;
 
-    for(; zeroNumber >0;currentTree1=currentTree1.right,currentTree2=currentTree2.right){
-       // if(currentTree2.branch=="0" && currentTree2.right !=null)currentTree2=currentTree2.right;
+    for(; zeroNumber >0 ;currentTree1=currentTree1.right,currentTree2=currentTree2.right){
         flag=false;
         for(i;i%interval!=0 && zeroNumber>0;i++){
             var zero = new Node('0');
@@ -412,6 +417,55 @@ function addZero(m,currentTree1,currentTree2){
         if(currentTree1 ==null) break;
     }
 }
+function add2Zero(m,currentTree1,currentTree2) {
+    var zeroNumber = parseInt(struct1[m]) - parseInt(struct2[m]);
+
+    currentTree1 = tree1.root;
+    currentTree2 = tree2.root;
+
+    for (var layer = m; layer > 0; layer--) {
+        currentTree2 = currentTree2.children[0];
+        currentTree1 = currentTree1.children[0];
+    }
+
+    var parentNode1 = currentTree1.parent;
+    var parentNode2 = currentTree2.parent;
+    var changeParent = false;
+
+    for (; zeroNumber > 0 && currentTree1.right != null; currentTree1 = currentTree1.right, currentTree2 = currentTree2.right) {
+
+        if ( currentTree1.right.parent != currentTree1.parent) {
+            parentNode1 = parentNode1.right;
+            parentNode2 = parentNode2.right;
+            changeParent = true;
+        }
+
+            if ((currentTree2.right == null ) ||(currentTree2.right.parent != currentTree2.parent && currentTree1.right.parent == currentTree1.parent) ||  parentNode2.branch == '0') {
+
+                var zero = new Node('0');
+                if (currentTree2.right != null) {
+                    var temp = currentTree2.right;
+
+                    currentTree2.right = zero;
+                    zero.left = currentTree2;
+                    zero.right = temp;
+                    temp.left = zero;
+                    zero.parent = parentNode2;
+                }
+                else {
+                    currentTree2.right = zero;
+                    zero.left = currentTree2;
+                    zero.parent = parentNode2;
+
+                }
+                if(changeParent == true && parentNode2.branch == '0'){
+                    parentNode2.children[0] = zero;
+                    changeParent = false;
+                }
+                zeroNumber--;
+            }
+        }
+}
 function createTree(){
     for(var m=0;m<struct1.length||m<struct2.length;m++) {
         if(m>=struct1.length){
@@ -420,12 +474,20 @@ function createTree(){
         else if(m>=struct2.length){
             addLayer(m,tree2,tree1);
         }
-        else if(m<struct1.length && m<struct2.length && parseInt(struct1[m])!=parseInt(struct2[m])){
+        else if(m==1 && m<struct1.length && m<struct2.length && parseInt(struct1[m])!=parseInt(struct2[m])){
             if(parseInt(struct1[m])>parseInt(struct2[m])){
                 addZero(m,tree1,tree2);
             }
             else{
                 addZero(m,tree2,tree1);
+            }
+        }
+        else if(m==2 && m<struct1.length && m<struct2.length && parseInt(struct1[m])!=parseInt(struct2[m])){
+            if(parseInt(struct1[m])>parseInt(struct2[m])){
+                add2Zero(m,tree1,tree2);
+            }
+            else{
+                add2Zero(m,tree2,tree1);
             }
         }
     }
