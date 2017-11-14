@@ -4,6 +4,7 @@ function Node(branch) {
     this.right =null;
     this.left=null;
     this.children = [];
+    this.zeroSeq = 0;
 }
 function Tree (data) {
     var node = new Node(data);
@@ -58,34 +59,3 @@ function insert(data,child,layer,tree) {
         }
     }
 }
-
-/*
-function find(tree,sequence,type){
-    var current;
-    if(tree.parent==null)
-        current = tree.root;
-    else
-        current = tree;
-    var parent = current;
-    if(current.branch[0].sequence==sequence){
-        if(type==1){
-            trunk1=current.branch;
-            currenttrunk=current;
-        }
-
-        else if(type==2){
-            trunk2=current.branch;
-            currenttrunk=current;
-        }
-        else
-            current.half=true;
-    }
-    else{
-        if(current.right)
-            find(current.right,sequence,type);
-        else {
-            while (current.left)current = current.left;
-            find(current.children[0],sequence,type);
-        }
-    }
-}*/

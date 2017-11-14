@@ -1,6 +1,7 @@
 var canvas,width,height,renderer,scene,camera,tracontrols,Orbitcontrols,rotcontrols,scacontrols;
 var normalTree=[];
 var branch;
+var pos = 0;
 //var lbbs;
 function init() {
   //  lbbs = new LBBs();
@@ -337,6 +338,8 @@ function addLayer(m,currentTree1,currentTree2){
         if(currentTree2.branch != '0'){
             if(currentTree1.children[0] == null){
                 currentTree1.children[0] = new Node('0');
+                currentTree1.children[0].zeroSeq = pos;
+                pos++;
                 currentTree1.children[0].parent = currentTree1;
                 if(currentTree1.left != null) {
                     var leftParent = currentTree1.left;
@@ -354,6 +357,8 @@ function addLayer(m,currentTree1,currentTree2){
                 var current = currentTree1.children[0];
                 while (current.right)current = current.right;
                 var zero = new Node('0');
+                zero.zeroSeq = pos;
+                pos++;
                 current.right = zero;
                 zero.left=current;
                 zero.parent=currentTree1;
@@ -385,6 +390,8 @@ function addZero(m,currentTree1,currentTree2){
         flag=false;
         for(i;i%interval!=0 && zeroNumber>0;i++){
             var zero = new Node('0');
+            zero.zeroSeq = pos;
+            pos++;
             if(currentTree2.right!=null) {
                 var temp = currentTree2.right;
                 currentTree2.right = zero;
@@ -443,6 +450,8 @@ function add2Zero(m,currentTree1,currentTree2) {
             if ((currentTree2.right == null ) ||(currentTree2.right.parent != currentTree2.parent && currentTree1.right.parent == currentTree1.parent) ||  parentNode2.branch == '0') {
 
                 var zero = new Node('0');
+                zero.zeroSeq = pos;
+                pos++;
                 if (currentTree2.right != null) {
                     var temp = currentTree2.right;
 

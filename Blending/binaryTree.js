@@ -12,8 +12,10 @@ function BST(data,right) {
 }
 function insertNode(data,right,binaryTree) {
     var node = new BinaryNode(data,right);
+    if(binaryTree.root)
     var current = binaryTree.root;
-
+    else
+    var current = binaryTree.data;
     while(current) {
         if(!current.leftNode){
             current.leftNode = node;
@@ -31,7 +33,7 @@ function binaryTree(){
     blending();
     compact();
 }
-function compact(){
+function compact(){ //紧凑化处理
     var current = blendingTree.root;
     var right;
     var x, y,z;
@@ -113,7 +115,7 @@ function createBinaryNode(number,tree){
     var i= 0,position = 0;
 
     while (current.right)current=current.right;
-    while(current) {
+    while(current) {//前两层拓扑结构构造
         left=[];
         if(current.branch[0]!='0') {
             position = parseInt(current.branch[0].position);
@@ -145,6 +147,69 @@ function createBinaryNode(number,tree){
         }
         insertNode(left,null,binaryTree);
     }
+
+    current = tree.root.children[0].children[0];   //三四层拓扑结构构建
+    while(current.right)current = current.right;  //current为层次结构中第三层的指针
+    parent = binaryTree.root;                       //parent为拓扑结构中的根节点的右节点
+    i=0;
+    var temp = parent;
+    var partTree;
+    while(parent.leftNode) {
+        temp = parent;
+        parent = parent.rightNode;
+        partTree = null;
+        i = 0; position = 0;
+
+        while ((current != null && current.branch != '0' && current.parent.branch[0].position == parent.branch[0].position) || (current != null && current.branch == '0' && current.parent.zeroSeq == parent.zeroSeq )) {
+            left = [];
+
+            if(current.branch != '0') {
+                position = parseInt(current.branch[0].position);
+                if (i > position) {
+                    for (; i > position; position++)
+                        left.push(parent.branch[i]);
+                }
+                /*else if (i == position) {
+                    left.push(parent.branch[i]);
+                }*/
+                else
+                    for (i; i < position; i++)
+                        left.push(parent.branch[i]);
+            }
+            else if(parent.branch == '0' && current.branch != '0'){
+                left.push(parent);
+            }
+            else{
+                left.push(current);
+            }
+            if(current.children.length > 0){
+                current.rightNode = current.children[0];
+            }
+            if(!partTree)
+                partTree = new BST(left,current);
+            else
+                insertNode(left,current,partTree);
+
+            current = current.left;
+        }
+        if( position < parent.branch.length) {   //拓扑结构最底层无右节点
+            left=[];
+            if(parent.branch != '0') {
+                for (var j = position; j < parent.branch.length; j++) {
+                    left.push(parent.branch[j]);
+                }
+            }
+            else {
+                left.push(parent);
+            }
+            insertNode(left,null,partTree);
+        }
+
+        parent = temp;
+        parent.rightNode = partTree.root;
+        parent = parent.leftNode;
+    }
+
     if(number ==1 )binaryTree1 = binaryTree;
     else
         binaryTree2=binaryTree;
