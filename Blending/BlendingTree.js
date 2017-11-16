@@ -1,7 +1,7 @@
 var canvas,width,height,renderer,scene,camera,tracontrols,Orbitcontrols,rotcontrols,scacontrols;
 var normalTree=[];
 var branch;
-var pos = 0;
+var pos = 1;
 //var lbbs;
 function init() {
   //  lbbs = new LBBs();
