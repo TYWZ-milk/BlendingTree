@@ -62,7 +62,8 @@ function blending(){
     var left = [];
     var right = [];
     var child1,child2;
-    var temp;
+    var temp1,temp2;
+    var current;   // blendingTree的指针
 
     while(point1) {  //point1是拓扑结构第一层指针 child1是第二层
         left = [];
@@ -76,7 +77,7 @@ function blending(){
             left.push(cicle);
         }
 
-        if(point1.rightNode) {                    //第二层拓扑结构
+        if(point1.rightNode) {                     //第二层拓扑结构
             child1 = point1.rightNode;
             child2 = point2.rightNode;
 
@@ -102,86 +103,134 @@ function blending(){
         }
         if(!blendingTree){
             blendingTree = new BST(left,right);
+            current = blendingTree.root;
         }
         else{
             insertNode(left,right,blendingTree);
+            current = current.leftNode;
         }
 
-        temp = child1;          //第三层拓扑结构
+        temp1 = child1;          //第三层拓扑结构
+        temp2 = child2;
+        partTree = null;
 
-        while(temp) {
+        while(temp1) {
             left = [];
             right = [];
-            for (var i = 0; i < child1.length || i < child2.length; i++) {
-                var cicle = {
-                    radius: (child1.data[i].radius + child2.data[i].radius) / 2,
-                    pos: child1.data[i].pos.add(child2.data[i].pos).divideScalar(2)
-                };
-                left.push(cicle);
-            }
 
-            for (var i = 0; i < child1.rightNode.data.length || i < child2.rightNode.data.length; i++) {
-                if (child2.rightNode.data[0].branch == "0")
+            for (var i = 0; i < temp1.data.length || i < temp2.data.length; i++) {
+                if (temp2.data[0].branch == "0")
                     cicle = {
-                        radius: (child1.rightNode.data[i].radius) / 2,
-                        pos: child1.rightNode.data[i].pos.divideScalar(2)
+                        radius: (temp1.data[i].radius) / 2,
+                        pos: temp1.data[i].pos.divideScalar(2)
                     };
-                else if (child1.rightNode.data[0].branch == "0")
+                else if (temp1.data[0].branch  == "0")
                     cicle = {
-                        radius: (child2.rightNode.data[i].radius) / 2,
-                        pos: child2.rightNode.data[i].pos.divideScalar(2)
+                        radius: (temp2.data[i].radius) / 2,
+                        pos: temp2.data[i].pos.divideScalar(2)
                     };
-                else if (i < child1.rightNode.data.length && i < child2.rightNode.data.length)
+                else if (i < temp1.data.length && i < temp2.data.length)
                     cicle = {
-                        radius: (child1.rightNode.data[i].radius + child2.rightNode.data[i].radius) / 2,
-                        pos: child1.rightNode.data[i].pos.add(child2.rightNode.data[i].pos).divideScalar(2)
+                        radius: (temp1.data[i].radius + temp2.data[i].radius) / 2,
+                        pos: temp1.data[i].pos.add(temp2.data[i].pos).divideScalar(2)
                     };
                 else break;
-                right.push(cicle);
+                left.push(cicle);
             }
+            if(temp1.rightNode != null) {
+                for (var i = 0; i < temp1.rightNode.branch.length || i < temp2.rightNode.branch.length; i++) {
+                    if (temp2.rightNode.branch == "0")
+                        cicle = {
+                            radius: (temp1.rightNode.branch[i].radius) / 2,
+                            pos: temp1.rightNode.branch[i].pos.divideScalar(2)
+                        };
+                    else if (temp1.rightNode.branch == "0")
+                        cicle = {
+                            radius: (temp2.rightNode.branch[i].radius) / 2,
+                            pos: temp2.rightNode.branch[i].pos.divideScalar(2)
+                        };
+                    else if (i < temp1.rightNode.branch.length && i < temp2.rightNode.branch.length)
+                        cicle = {
+                            radius: (temp1.rightNode.branch[i].radius + temp2.rightNode.branch[i].radius) / 2,
+                            pos: temp1.rightNode.branch[i].pos.add(temp2.rightNode.branch[i].pos).divideScalar(2)
+                        };
+                    else break;
+                    right.push(cicle);
+                }
+            }
+
             if (!partTree)
                 partTree = new BST(left, right);
+            else if(temp1.rightNode == null)
+                insertNode(left,null,partTree);
             else
                 insertNode(left, right, partTree);
 
-            temp = temp.leftNode;
-        }
-        child1.rightNode = partTree.root;
-
-        left = right;
-        right = [];
-        partTree = null;
-        if(child1.rightNode.rightNode){
-            for (var i = 0; i < child1.rightNode.rightNode.data.length || i<child2.rightNode.rightNode.data.length; i++) {    //第四层拓扑结构
-                if (child2.rightNode.rightNode.data[0].branch == "0")
-                    cicle = {
-                        radius: (child1.rightNode.rightNode.data[i].radius) /2,
-                        pos: child1.rightNode.rightNode.data[i].pos.divideScalar(2)
-                    };
-                else if (child1.rightNode.rightNode.data[0].branch == "0")
-                    cicle = {
-                        radius: (child2.rightNode.rightNode.data[i].radius) / 2,
-                        pos: child2.rightNode.rightNode.data[i].pos.divideScalar(2)
-                    };
-                else if(i<child1.rightNode.rightNode.data.length && i<child2.rightNode.rightNode.data.length)
-                    cicle = {
-                        radius: (child1.rightNode.rightNode.data[i].radius + child2.rightNode.rightNode.data[i].radius) / 2,
-                        pos: child1.rightNode.rightNode.data[i].pos.add(child2.rightNode.rightNode.data[i].pos).divideScalar(2)
-                    };
-                else break;
-                right.push(cicle);
+            var add = [];
+            if(temp1.rightNode != null && temp1.rightNode.rightNode != null){
+                add = [];
+                for (var i = 0; i < temp1.rightNode.rightNode.branch.length || i < temp2.rightNode.rightNode.branch.length; i++) {    //第四层拓扑结构
+                    if (temp2.rightNode.rightNode != null && temp2.rightNode.rightNode.branch == "0")
+                        cicle = {
+                            radius: (temp1.rightNode.rightNode.branch[i].radius) / 2,
+                            pos: temp1.rightNode.rightNode.branch[i].pos.divideScalar(2)
+                        };
+                    else if (temp1.rightNode.rightNode != null && temp1.rightNode.rightNode.branch == "0")
+                        cicle = {
+                            radius: (temp2.rightNode.rightNode.branch[i].radius) / 2,
+                            pos: temp2.rightNode.rightNode.branch[i].pos.divideScalar(2)
+                        };
+                    else if (i < temp1.rightNode.rightNode.branch.length && i < temp2.rightNode.rightNode.branch.length)
+                        cicle = {
+                            radius: (temp1.rightNode.rightNode.branch[i].radius + temp2.rightNode.rightNode.branch[i].radius) / 2,
+                            pos: temp1.rightNode.rightNode.branch[i].pos.add(temp2.rightNode.rightNode.branch[i].pos).divideScalar(2)
+                        };
+                    else break;
+                    add.push(cicle);
+                }
+                var addTree = new BST(right,add);
+                insertNode(right,addTree.root,partTree);
             }
+
+            temp1 = temp1.leftNode;
+            temp2 = temp2.leftNode;
         }
-        if(!partTree)
-            partTree = new BST(left,right);
-        else
-            insertNode(left,right,partTree);
-        child1.rightNode.rightNode = partTree.root;
+        current.rightNode = partTree.root;
 
 
         point1 = point1.leftNode;
         point2 = point2.leftNode;
     }
+
+   /* child1 = binaryTree1.root;
+    child2 = binaryTree2.root;
+    current = blendingTree.root;
+    while(current) {
+        right = [];
+        if (child1.rightNode.rightNode) {
+            for (var i = 0; i < child1.rightNode.rightNode.branch.length || i < child2.rightNode.rightNode.branch.length; i++) {    //第四层拓扑结构
+                if (child2.rightNode.rightNode.branch[0].branch == "0")
+                    cicle = {
+                        radius: (child1.rightNode.rightNode.branch[i].radius) / 2,
+                        pos: child1.rightNode.rightNode.branch[i].pos.divideScalar(2)
+                    };
+                else if (child1.rightNode.rightNode.branch[0].branch == "0")
+                    cicle = {
+                        radius: (child2.rightNode.rightNode.branch[i].radius) / 2,
+                        pos: child2.rightNode.rightNode.branch[i].pos.divideScalar(2)
+                    };
+                else if (i < child1.rightNode.rightNode.branch.length && i < child2.rightNode.rightNode.branch.length)
+                    cicle = {
+                        radius: (child1.rightNode.rightNode.branch[i].radius + child2.rightNode.rightNode.branch[i].radius) / 2,
+                        pos: child1.rightNode.rightNode.branch[i].pos.add(child2.rightNode.rightNode.branch[i].pos).divideScalar(2)
+                    };
+                else break;
+                right.push(cicle);
+            }
+        }
+        current.rightNode.data = right;
+        current = current.leftNode;
+    }*/
 }
 function createBinaryNode(number,tree){
     var binaryTree;
