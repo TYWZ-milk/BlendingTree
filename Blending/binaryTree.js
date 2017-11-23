@@ -36,21 +36,61 @@ function binaryTree(){
 function compact(){ //紧凑化处理
     var current = blendingTree.root;
     var right;
+    var child;
     var x, y,z;
-    while(current.rightNode.length != 0){
-
-        if(current.rightNode != '0') {
+    while(current!=null && current.rightNode.length != 0){
+        if(current.rightNode != '0') {       //第二层紧凑化处理
             right = current.rightNode;
-            x = current.data[0].pos.x - right[0].pos.x;
-            y = current.data[0].pos.y - right[0].pos.y;
-            z = current.data[0].pos.z - right[0].pos.z;
+            x = current.data[0].pos.x - right.data[0].pos.x;
+            y = current.data[0].pos.y - right.data[0].pos.y;
+            z = current.data[0].pos.z - right.data[0].pos.z;
 
-            for(var i=0;i<right.length;i++){
-                right[i].pos.x += x;
-                right[i].pos.y += y;
-                right[i].pos.z += z;
+            for(var i=0;i<right.data.length;i++){
+                right.data[i].pos.x += x;
+                right.data[i].pos.y += y;
+                right.data[i].pos.z += z;
+            }
+            child = current.rightNode.leftNode;
+            while(child) {
+                for (var i = 0; i < child.data.length; i++) {
+                    child.data[i].pos.x += x;
+                    child.data[i].pos.y += y;
+                    child.data[i].pos.z += z;
+                }
+                child = child.leftNode;
             }
         }
+        child = current.rightNode;
+        while(child){
+
+            if(child.rightNode != null && child.rightNode != '0') {
+                right = child.rightNode;
+                x = child.data[0].pos.x - right.data[0].pos.x;
+                y = child.data[0].pos.y - right.data[0].pos.y;
+                z = child.data[0].pos.z - right.data[0].pos.z;
+
+                for(var i=0;i<right.data.length;i++){
+                    right.data[i].pos.x += x;
+                    right.data[i].pos.y += y;
+                    right.data[i].pos.z += z;
+                }
+                if(child.rightNode.rightNode !=null && child.rightNode.rightNode.data.length>0 && child.rightNode.rightNode != '0') {
+                    right = child.rightNode.rightNode;
+                    x = child.rightNode.data[0].pos.x - right.data[0].pos.x;
+                    y = child.rightNode.data[0].pos.y - right.data[0].pos.y;
+                    z = child.rightNode.data[0].pos.z - right.data[0].pos.z;
+
+                    for(var i=0;i<right.data.length;i++){
+                        right.data[i].pos.x += x;
+                        right.data[i].pos.y += y;
+                        right.data[i].pos.z += z;
+                    }
+                }
+            }
+
+            child = child.leftNode;
+        }
+
 
         current = current.leftNode;
     }
@@ -114,7 +154,7 @@ function blending(){
         temp2 = child2;
         partTree = null;
 
-        while(temp1) {
+        while(temp1 && temp2) {
             left = [];
             right = [];
 
@@ -159,13 +199,6 @@ function blending(){
                 }
             }
 
-            if (!partTree)
-                partTree = new BST(left, right);
-            else if(temp1.rightNode == null)
-                insertNode(left,null,partTree);
-            else
-                insertNode(left, right, partTree);
-
             var add = [];
             if(temp1.rightNode != null && temp1.rightNode.rightNode != null){
                 add = [];
@@ -188,9 +221,29 @@ function blending(){
                     else break;
                     add.push(cicle);
                 }
-                var addTree = new BST(right,add);
-                insertNode(right,addTree.root,partTree);
+
             }
+
+            if (!partTree && temp1.rightNode == null) {
+                var node = new BinaryNode(right,null);
+                partTree = new BST(left, node);
+            }
+            else if (!partTree && temp1.rightNode != null) {
+                var node = new BinaryNode(add,null);
+                var addTree = new BST(right,node);
+                partTree = new BST(left, addTree.root);
+            }
+            else if(partTree && temp1.rightNode == null)
+                insertNode(left,null,partTree);
+            else{
+                var node = new BinaryNode(add,null);
+                var addTree = new BST(right,node);
+                insertNode(left,addTree.root,partTree);
+            }
+            /*else {
+                var node = new BinaryNode(right,null);
+                insertNode(left, node, partTree);
+            }*/
 
             temp1 = temp1.leftNode;
             temp2 = temp2.leftNode;
@@ -201,36 +254,6 @@ function blending(){
         point1 = point1.leftNode;
         point2 = point2.leftNode;
     }
-
-   /* child1 = binaryTree1.root;
-    child2 = binaryTree2.root;
-    current = blendingTree.root;
-    while(current) {
-        right = [];
-        if (child1.rightNode.rightNode) {
-            for (var i = 0; i < child1.rightNode.rightNode.branch.length || i < child2.rightNode.rightNode.branch.length; i++) {    //第四层拓扑结构
-                if (child2.rightNode.rightNode.branch[0].branch == "0")
-                    cicle = {
-                        radius: (child1.rightNode.rightNode.branch[i].radius) / 2,
-                        pos: child1.rightNode.rightNode.branch[i].pos.divideScalar(2)
-                    };
-                else if (child1.rightNode.rightNode.branch[0].branch == "0")
-                    cicle = {
-                        radius: (child2.rightNode.rightNode.branch[i].radius) / 2,
-                        pos: child2.rightNode.rightNode.branch[i].pos.divideScalar(2)
-                    };
-                else if (i < child1.rightNode.rightNode.branch.length && i < child2.rightNode.rightNode.branch.length)
-                    cicle = {
-                        radius: (child1.rightNode.rightNode.branch[i].radius + child2.rightNode.rightNode.branch[i].radius) / 2,
-                        pos: child1.rightNode.rightNode.branch[i].pos.add(child2.rightNode.rightNode.branch[i].pos).divideScalar(2)
-                    };
-                else break;
-                right.push(cicle);
-            }
-        }
-        current.rightNode.data = right;
-        current = current.leftNode;
-    }*/
 }
 function createBinaryNode(number,tree){
     var binaryTree;

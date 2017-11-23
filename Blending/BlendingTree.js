@@ -513,9 +513,13 @@ function drawTree(){
 
     current = blendingTree.root;
     while(current.rightNode){//画子枝干
+        var child = current.rightNode;
         trunk = [];
-        for(var i=0;i<current.rightNode.length;i++)
-            trunk.push(current.rightNode[i]);
+        while(child) {
+            for (var i = 0; i < child.data.length; i++)
+                trunk.push(child.data[i]);
+            child = child.leftNode;
+        }
         drawBranch(trunk);
         scene.add(branch);
         current = current.leftNode;
