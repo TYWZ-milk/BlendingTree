@@ -108,35 +108,40 @@ function blending(){
     while(point1) {  //point1是拓扑结构第一层指针 child1是第二层
         left = [];
         right = [];
+        var position = new THREE.Vector3(point1.data[0].pos.x+point2.data[0].pos.x,point1.data[0].pos.y+point2.data[0].pos.y,point1.data[0].pos.z+point2.data[0].pos.z);
+        var cicle = {
+            radius: (point1.data[0].radius + point2.data[0].radius) / 2,
+            pos: position.divideScalar(2)
+        };
+        left.push(cicle);
 
-        for (var i = 0; i < point1.data.length || i < point2.data.length; i++) {   //第一层拓扑结构
-            var cicle = {
-                radius: (point1.data[i].radius + point2.data[i].radius) / 2,
-                pos: point1.data[i].pos.add(point2.data[i].pos).divideScalar(2)
-            };
-            left.push(cicle);
-        }
 
         if(point1.rightNode) {                     //第二层拓扑结构
             child1 = point1.rightNode;
             child2 = point2.rightNode;
 
             for (var i = 0; i < child1.data.length || i < child2.data.length; i++) {
-                if (child2.data[0].branch == "0")
+                if (child2.data[0].branch == "0") {
+                    position = new THREE.Vector3(child1.data[i].pos.x,child1.data[i].pos.y,child1.data[i].pos.z);
                     cicle = {
                         radius: (child1.data[i].radius) / 2,
-                        pos: child1.data[i].pos.divideScalar(2)
+                        pos: position.divideScalar(2)
                     };
-                else if (child1.data[0].branch == "0")
+                }
+                else if (child1.data[0].branch == "0") {
+                    position = new THREE.Vector3(child2.data[i].pos.x,child2.data[i].pos.y,child2.data[i].pos.z);
                     cicle = {
                         radius: (child2.data[i].radius) / 2,
-                        pos: child2.data[i].pos.divideScalar(2)
+                        pos: position.divideScalar(2)
                     };
-                else if(i < child1.data.length && i < child2.data.length)
+                }
+                else if(i < child1.data.length && i < child2.data.length) {
+                    position = new THREE.Vector3(child1.data[i].pos.x+child2.data[i].pos.x,child1.data[i].pos.y+child2.data[i].pos.y,child1.data[i].pos.z+child2.data[i].pos.z);
                     cicle = {
-                        radius: (child1.data[i].radius + child2.data[i].radius) / 2,
-                        pos: child1.data[i].pos.add(child2.data[i].pos).divideScalar(2)
+                        radius: (child1.data[0].radius + child2.data[0].radius) / 2,
+                        pos: position.divideScalar(2)
                     };
+                }
                 else break;
                 right.push(cicle);
             }
@@ -159,41 +164,53 @@ function blending(){
             right = [];
 
             for (var i = 0; i < temp1.data.length || i < temp2.data.length; i++) {
-                if (temp2.data[0].branch == "0")
+                if (temp2.data[0].branch == "0") {
+                    position = new THREE.Vector3(temp1.data[i].pos.x,temp1.data[i].pos.y,temp1.data[i].pos.z);
                     cicle = {
                         radius: (temp1.data[i].radius) / 2,
-                        pos: temp1.data[i].pos.divideScalar(2)
+                        pos: position.divideScalar(2)
                     };
-                else if (temp1.data[0].branch  == "0")
+                }
+                else if (temp1.data[0].branch  == "0"){
+                    position = new THREE.Vector3(temp2.data[i].pos.x,temp2.data[i].pos.y,temp2.data[i].pos.z);
                     cicle = {
                         radius: (temp2.data[i].radius) / 2,
-                        pos: temp2.data[i].pos.divideScalar(2)
+                        pos: position.divideScalar(2)
                     };
-                else if (i < temp1.data.length && i < temp2.data.length)
+                }
+                else if (i < temp1.data.length && i < temp2.data.length) {
+                    position = new THREE.Vector3(temp1.data[i].pos.x+temp2.data[i].pos.x,temp1.data[i].pos.y+temp2.data[i].pos.y,temp1.data[i].pos.z+temp2.data[i].pos.z);
                     cicle = {
                         radius: (temp1.data[i].radius + temp2.data[i].radius) / 2,
-                        pos: temp1.data[i].pos.add(temp2.data[i].pos).divideScalar(2)
+                        pos: position.divideScalar(2)
                     };
+                }
                 else break;
                 left.push(cicle);
             }
             if(temp1.rightNode != null) {
                 for (var i = 0; i < temp1.rightNode.branch.length || i < temp2.rightNode.branch.length; i++) {
-                    if (temp2.rightNode.branch == "0")
+                    if (temp2.rightNode.branch == "0") {
+                        position = new THREE.Vector3(temp1.rightNode.branch[i].pos.x,temp1.rightNode.branch[i].pos.y,temp1.rightNode.branch[i].pos.z);
                         cicle = {
                             radius: (temp1.rightNode.branch[i].radius) / 2,
-                            pos: temp1.rightNode.branch[i].pos.divideScalar(2)
+                            pos: position.divideScalar(2)
                         };
-                    else if (temp1.rightNode.branch == "0")
+                    }
+                    else if (temp1.rightNode.branch == "0") {
+                        position = new THREE.Vector3(temp2.rightNode.branch[i].pos.x,temp2.rightNode.branch[i].pos.y,temp2.rightNode.branch[i].pos.z);
                         cicle = {
                             radius: (temp2.rightNode.branch[i].radius) / 2,
-                            pos: temp2.rightNode.branch[i].pos.divideScalar(2)
+                            pos: position.divideScalar(2)
                         };
-                    else if (i < temp1.rightNode.branch.length && i < temp2.rightNode.branch.length)
+                    }
+                    else if (i < temp1.rightNode.branch.length && i < temp2.rightNode.branch.length) {
+                        position = new THREE.Vector3(temp1.rightNode.branch[i].pos.x+temp2.rightNode.branch[i].pos.x,temp1.rightNode.branch[i].pos.y+temp2.rightNode.branch[i].pos.y,temp1.rightNode.branch[i].pos.z+temp2.rightNode.branch[i].pos.z);
                         cicle = {
                             radius: (temp1.rightNode.branch[i].radius + temp2.rightNode.branch[i].radius) / 2,
-                            pos: temp1.rightNode.branch[i].pos.add(temp2.rightNode.branch[i].pos).divideScalar(2)
+                            pos: position.divideScalar(2)
                         };
+                    }
                     else break;
                     right.push(cicle);
                 }
@@ -203,21 +220,27 @@ function blending(){
             if(temp1.rightNode != null && temp1.rightNode.rightNode != null){
                 add = [];
                 for (var i = 0; i < temp1.rightNode.rightNode.branch.length || i < temp2.rightNode.rightNode.branch.length; i++) {    //第四层拓扑结构
-                    if (temp2.rightNode.rightNode != null && temp2.rightNode.rightNode.branch == "0")
+                    if (temp2.rightNode.rightNode != null && temp2.rightNode.rightNode.branch == "0") {
+                        position = new THREE.Vector3(temp1.rightNode.rightNode.branch[i].pos.x,temp1.rightNode.rightNode.branch[i].pos.y,temp1.rightNode.rightNode.branch[i].pos.z);
                         cicle = {
                             radius: (temp1.rightNode.rightNode.branch[i].radius) / 2,
-                            pos: temp1.rightNode.rightNode.branch[i].pos.divideScalar(2)
+                            pos: position.divideScalar(2)
                         };
-                    else if (temp1.rightNode.rightNode != null && temp1.rightNode.rightNode.branch == "0")
+                    }
+                    else if (temp1.rightNode.rightNode != null && temp1.rightNode.rightNode.branch == "0") {
+                        position = new THREE.Vector3(temp2.rightNode.rightNode.branch[i].pos.x,temp2.rightNode.rightNode.branch[i].pos.y,temp2.rightNode.rightNode.branch[i].pos.z);
                         cicle = {
                             radius: (temp2.rightNode.rightNode.branch[i].radius) / 2,
-                            pos: temp2.rightNode.rightNode.branch[i].pos.divideScalar(2)
+                            pos: position.divideScalar(2)
                         };
-                    else if (i < temp1.rightNode.rightNode.branch.length && i < temp2.rightNode.rightNode.branch.length)
+                    }
+                    else if (i < temp1.rightNode.rightNode.branch.length && i < temp2.rightNode.rightNode.branch.length) {
+                        position = new THREE.Vector3(temp1.rightNode.rightNode.branch[i].pos.x+temp2.rightNode.rightNode.branch[i].pos.x,temp1.rightNode.rightNode.branch[i].pos.y+temp2.rightNode.rightNode.branch[i].pos.y,temp1.rightNode.rightNode.branch[i].pos.z+temp2.rightNode.rightNode.branch[i].pos.z);
                         cicle = {
                             radius: (temp1.rightNode.rightNode.branch[i].radius + temp2.rightNode.rightNode.branch[i].radius) / 2,
-                            pos: temp1.rightNode.rightNode.branch[i].pos.add(temp2.rightNode.rightNode.branch[i].pos).divideScalar(2)
+                            pos: position.divideScalar(2)
                         };
+                    }
                     else break;
                     add.push(cicle);
                 }
@@ -240,10 +263,6 @@ function blending(){
                 var addTree = new BST(right,node);
                 insertNode(left,addTree.root,partTree);
             }
-            /*else {
-                var node = new BinaryNode(right,null);
-                insertNode(left, node, partTree);
-            }*/
 
             temp1 = temp1.leftNode;
             temp2 = temp2.leftNode;

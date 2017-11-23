@@ -512,6 +512,7 @@ function drawTree(){
     scene.add(branch);
 
     current = blendingTree.root;
+    var j=0;
     while(current.rightNode){//画子枝干
         var child = current.rightNode;
         trunk = [];
@@ -523,6 +524,8 @@ function drawTree(){
         drawBranch(trunk);
         scene.add(branch);
         current = current.leftNode;
+        j++;
+      //  if(j==4)break;
     }
 }
 function drawBranch(trunk) {
