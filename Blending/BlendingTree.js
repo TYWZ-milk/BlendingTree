@@ -503,6 +503,7 @@ function createTree(){
 }
 function drawTree(){
     var trunk = [];
+    var childtrunk = [];
     var current = blendingTree.root;
     while(current){  //画主枝干
         trunk.push(current.data[0]);
@@ -512,11 +513,27 @@ function drawTree(){
     scene.add(branch);
 
     current = blendingTree.root;
-    var j=0;
+
     while(current.rightNode){//画子枝干
         var child = current.rightNode;
         trunk = [];
         while(child) {
+            childtrunk = [];
+            if(child.rightNode){
+                for (var i = 0; i < child.rightNode.data.length; i++)
+                    childtrunk.push(child.rightNode.data[i]);
+                drawBranch(childtrunk);
+                scene.add(branch);
+            }
+
+            childtrunk = [];
+            if(child.rightNode != null && child.rightNode.rightNode != null && child.rightNode.rightNode.data.length>0){
+                for (var i = 0; i < child.rightNode.rightNode.data.length; i++)
+                    childtrunk.push(child.rightNode.rightNode.data[i]);
+                drawBranch(childtrunk);
+                scene.add(branch);
+            }
+
             for (var i = 0; i < child.data.length; i++)
                 trunk.push(child.data[i]);
             child = child.leftNode;
@@ -524,8 +541,6 @@ function drawTree(){
         drawBranch(trunk);
         scene.add(branch);
         current = current.leftNode;
-        j++;
-      //  if(j==4)break;
     }
 }
 function drawBranch(trunk) {

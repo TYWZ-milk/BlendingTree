@@ -31,6 +31,9 @@ function binaryTree(){
     createBinaryNode(1,tree1);
     createBinaryNode(2,tree2);
     blending();
+   /* blendingTree.root.leftNode.leftNode.leftNode.rightNode.data = [];          //第四个枝干异常处理 拓扑结构中第一个为0 其余有数据
+    var cur =  blendingTree.root.leftNode.leftNode.leftNode.data[0];                  //第十二个枝干有问题
+    blendingTree.root.leftNode.leftNode.leftNode.rightNode.data.push(cur);*/
     compact();
 }
 function compact(){ //紧凑化处理
@@ -52,15 +55,19 @@ function compact(){ //紧凑化处理
             }
             child = current.rightNode.leftNode;
             while(child) {
+            /*    x = right.data[right.data.length-1].pos.x - child.data[0].pos.x;
+                y = right.data[right.data.length-1].pos.y - child.data[0].pos.y;
+                z = right.data[right.data.length-1].pos.z - child.data[0].pos.z;*/
                 for (var i = 0; i < child.data.length; i++) {
                     child.data[i].pos.x += x;
                     child.data[i].pos.y += y;
                     child.data[i].pos.z += z;
                 }
+               // right = child;
                 child = child.leftNode;
             }
         }
-        child = current.rightNode;
+        child = current.rightNode;  //三四层紧凑化处理
         while(child){
 
             if(child.rightNode != null && child.rightNode != '0') {
@@ -138,7 +145,7 @@ function blending(){
                 else if(i < child1.data.length && i < child2.data.length) {
                     position = new THREE.Vector3(child1.data[i].pos.x+child2.data[i].pos.x,child1.data[i].pos.y+child2.data[i].pos.y,child1.data[i].pos.z+child2.data[i].pos.z);
                     cicle = {
-                        radius: (child1.data[0].radius + child2.data[0].radius) / 2,
+                        radius: (child1.data[i].radius + child2.data[i].radius) / 2,
                         pos: position.divideScalar(2)
                     };
                 }
@@ -345,6 +352,9 @@ function createBinaryNode(number,tree){
             }
             else if(parent.branch == '0' && current.branch != '0'){
                 left.push(parent);
+            }
+            else if(parent.branch != '0' && current.branch == '0'){
+                left.push(parent.branch[0]);
             }
             else{
                 left.push(current);
