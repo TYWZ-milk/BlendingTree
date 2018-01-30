@@ -31,9 +31,6 @@ function binaryTree(){
     createBinaryNode(1,tree1);
     createBinaryNode(2,tree2);
     blending();
-   /* blendingTree.root.leftNode.leftNode.leftNode.rightNode.data = [];          //第四个枝干异常处理 拓扑结构中第一个为0 其余有数据
-    var cur =  blendingTree.root.leftNode.leftNode.leftNode.data[0];                  //第十二个枝干有问题
-    blendingTree.root.leftNode.leftNode.leftNode.rightNode.data.push(cur);*/
     compact();
 }
 function compact(){ //紧凑化处理
@@ -281,7 +278,7 @@ function blending(){
         point2 = point2.leftNode;
     }
 }
-function createBinaryNode(number,tree){
+function createBinaryNode(number,tree){         //两棵模型树木的拓扑结构
     var binaryTree;
     var current = tree.root.children[0];
     var parent = tree.root;

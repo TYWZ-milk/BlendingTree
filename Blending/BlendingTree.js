@@ -197,6 +197,11 @@ function readFile(){
             createTree();
             binaryTree();
             drawTree();
+            binaryTree1 = blendingTree;
+            blendingTree = null;
+            blending();
+            compact();
+            drawTree();
         },
 
         // Function called when download progresses
@@ -511,10 +516,10 @@ function drawTree(){
     }
     drawBranch(trunk);
     scene.add(branch);
-
+    normalTree.push(branch);
     current = blendingTree.root;
 
-    while(current.rightNode){//画子枝干
+    while(current!=null && current.rightNode){//画子枝干
         var child = current.rightNode;
         trunk = [];
         while(child) {
@@ -635,6 +640,7 @@ function onclick(event) {
 
     var intersects01 = raycaster.intersectObjects( normalTree[0].children);
     var intersects02 = raycaster.intersectObjects( normalTree[1].children);
+    var intersects03 = raycaster.intersectObjects( normalTree[2].children);
     if(intersects01.length) {
         gui.domElement.hidden = false;
         selected=normalTree[0];
@@ -650,6 +656,18 @@ function onclick(event) {
     else if(intersects02.length) {
         gui.domElement.hidden = false;
         selected=normalTree[1];
+        if (!treeParameter.scale) {
+            tracontrols.attach(selected);
+            rotcontrols.attach(selected);
+        }
+        else{
+            scacontrols.attach(selected);
+        }
+
+    }
+    else if(intersects03.length) {
+        gui.domElement.hidden = false;
+        selected=normalTree[2];
         if (!treeParameter.scale) {
             tracontrols.attach(selected);
             rotcontrols.attach(selected);
